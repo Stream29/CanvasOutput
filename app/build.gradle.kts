@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(":model"))
+    implementation(libs.bundles.langchain4kt.qwen)
 }
 
 application {
