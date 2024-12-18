@@ -1,9 +1,7 @@
 package io.github.stream29.segmentedmodel.app
 
 import io.github.stream29.jsonschemagenerator.Description
-import io.github.stream29.jsonschemagenerator.toSchema
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 
 @Serializable
 @Description("你的一段思考")
@@ -18,8 +16,8 @@ data class ThoughtSegment(
     val result: String,
 )
 
-val systemInstruction = """
-${json.encodeToString(ThoughtSegment.serializer().descriptor.toSchema())}
+inline fun <reified T> systemInstruction() = """
+${schemaOf<T>()}
 以上为一个json schema。你的输出必须符合这个schema。
 你的输出内容必须为纯json，不可以包含任何其他内容。
 """.trimIndent()
