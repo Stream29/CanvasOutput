@@ -4,7 +4,8 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.bundles.kotlinx.ecosystem)
-    implementation(libs.bundles.langchain4kt.framework)
+    api(libs.bundles.kotlinx.ecosystem)
+    api(libs.bundles.langchain4kt.framework)
+    api(libs.json.schema.generator)
     testImplementation(kotlin("test"))
 }

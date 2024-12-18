@@ -5,6 +5,7 @@ kotlinx-serialization-json = "1.7.2"
 kotlinx-coroutines = "1.8.1"
 langchain4j = "0.35.0"
 langchain4kt = "1.5.0"
+json-schema-generator = "0.0.2-SNAPSHOT"
 
 [libraries]
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -18,6 +19,8 @@ langchain4kt-api-langchain4j = { module = "io.github.stream29:langchain4kt-api-l
 
 langchain4kt-core = { module = "io.github.stream29:langchain4kt-core", version.ref = "langchain4kt" }
 langchain4kt-streaming = { module = "io.github.stream29:langchain4kt-streaming", version.ref = "langchain4kt" }
+
+json-schema-generator = { module = "io.github.stream29:json-schema-generator", version.ref = "json-schema-generator"}
 
 [bundles]
 kotlinx-ecosystem = ["kotlinx-datetime", "kotlinx-serialization", "kotlinx-coroutines"]

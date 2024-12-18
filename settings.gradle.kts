@@ -2,6 +2,13 @@ dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
         mavenCentral()
+        maven {
+            url = uri("https://maven.pkg.github.com/Stream29/JsonSchemaGenerator")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")!!
+                password = System.getenv("GITHUB_TOKEN")!!
+            }
+        }
     }
 }
 
