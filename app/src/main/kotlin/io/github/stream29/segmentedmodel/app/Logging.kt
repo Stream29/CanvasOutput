@@ -1,27 +1,20 @@
 package io.github.stream29.segmentedmodel.app
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import io.github.stream29.segmentedmodel.model.loggingChannelMeta
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.datetime.Clock
 
-val loggingLock = Mutex()
-val loggingChannelProvider = {
-    val channel = Channel<String>()
-    CoroutineScope(Dispatchers.IO).launch {
-        channel.consumeAsFlow()
-            .buffer(Channel.UNLIMITED)
-            .onStart { loggingLock.lock() }
-            .onEach { log(it) }
-            .onCompletion { log("\n") }
-            .onCompletion { loggingLock.unlock() }
-            .collect()
-    }
-    channel
-}
+fun titledSplitter(title: Any?) = "${"-".repeat(10)}$title${"-".repeat(10)}"
 
-fun log(message: String) {
-    print(message)
+val loggingChannelProvider = run {
+    val startTime = Clock.System.now()
+    loggingChannelMeta(
+        loggingLock = Mutex(),
+        output = ::print,
+        onStart = { "\n${titledSplitter("generate started at $startTime")}\n" },
+        onComplete = {
+            val completeTime = Clock.System.now()
+            "\n${titledSplitter("generate completed in ${completeTime - startTime} at $completeTime")}\n"
+        }
+    )
 }

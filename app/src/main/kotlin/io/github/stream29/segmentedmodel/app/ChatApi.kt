@@ -11,4 +11,5 @@ val qwenStreamChatApiProvider =
         .modelName("qwen-turbo-latest")
         .build()
         .asStreamChatApiProvider()
+
 val qwenChatApiProvider = LoggingChatApiProvider(qwenStreamChatApiProvider, loggingChannelProvider)
