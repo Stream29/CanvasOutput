@@ -6,12 +6,12 @@ import kotlinx.coroutines.runBlocking
 
 fun main() {
     runBlocking {
-        val respondent = qwenChatApiProvider.asRespondent(systemInstruction<ThoughtSegment>())
+        val respondent = qwenChatApiProvider.asRespondent(systemInstruction<ThoughtPhases>())
         launch {
-            respondent.chat<ThoughtSegment>("请分析两个物体碰撞的不同情况。")
+            respondent.chat<ThoughtPhases>("请分析两个物体碰撞的不同情况。")
         }
         launch {
-            respondent.chat<ThoughtSegment>("请分析三个物体碰撞的不同情况。")
+            respondent.chat<ThoughtPhases>("请分析三个物体碰撞的不同情况。")
         }
     }
 }
