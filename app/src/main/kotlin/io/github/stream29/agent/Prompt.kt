@@ -23,7 +23,7 @@ data class OutlinePhase(
 data class OutlineColumn(
     @Description("这一节的内容")
     val content: String,
-    @Description("可以深入讨论这一节的子条目")
+    @Description("这一节的子条目")
     val children: List<OutlineColumn> = emptyList(),
 )
 

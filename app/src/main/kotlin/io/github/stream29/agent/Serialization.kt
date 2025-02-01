@@ -6,7 +6,10 @@ import io.github.stream29.langchain4kt.core.Respondent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-val json = Json { prettyPrint = true }
+val json = Json {
+    prettyPrint = true
+    ignoreUnknownKeys = true
+}
 val schemaGenerator = SchemaGenerator()
 
 inline fun <reified T> schemaOf() = json.encodeToString(schemaGenerator.schemaOf<T>())
