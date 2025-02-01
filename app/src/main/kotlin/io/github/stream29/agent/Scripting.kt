@@ -1,4 +1,4 @@
-package io.github.stream29.segmentedmodel.app
+package io.github.stream29.agent
 
 import org.jetbrains.kotlin.mainKts.MainKtsScript
 import java.io.ByteArrayOutputStream
@@ -22,8 +22,6 @@ fun eval(
         evaluationConfig
     ).onSuccess {
         val returnValue = it.returnValue
-        println("Script class: ${returnValue.scriptClass}")
-        println("Script instance: ${returnValue.scriptInstance}")
         when (returnValue) {
             is ResultValue.Unit -> println("return Unit")
             is ResultValue.Error -> println("throws: ${returnValue.error.stackTraceToString()}\nwrapped: ${returnValue.wrappingException?.stackTraceToString()}")

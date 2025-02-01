@@ -1,4 +1,4 @@
-package io.github.stream29.segmentedmodel.app
+package io.github.stream29.agent
 
 import io.github.stream29.jsonschemagenerator.Description
 import io.github.stream29.jsonschemagenerator.RefWithSerialName
@@ -10,9 +10,6 @@ data class ThoughtHistory(
     @Description("你的思考各个阶段")
     val phases: MutableList<ThoughtPhase>,
 )
-
-@Serializable
-sealed interface ThoughtPhase
 
 @Serializable
 @SerialName("Beginning")
@@ -51,7 +48,7 @@ data class OutlinePhase(
 @SerialName("Summary")
 @RefWithSerialName
 data class SummaryPhase(
-    @Description("整理思考的过程，给出对初始问题的答案")
+    @Description("基于思考的过程，给出对初始问题的答案")
     val summary: String,
 ) : ThoughtPhase
 
@@ -60,15 +57,20 @@ data class SummaryPhase(
 @RefWithSerialName
 @Description("当你需要执行main.kts脚本时，使用这个phase")
 data class ScriptingPhase(
-    @Description("一段main.kts脚本，将会被执行。不需要写main函数")
+    @Description("一段main.kts脚本，将会被执行。不需要写main函数，脚本的最后一行会被当作返回值")
     val script: String,
-) : ThoughtPhase
+) : ThoughtPhase {
+    override suspend fun joinTo(agent: Agent) {
+        super.joinTo(agent)
+        agent.history.add(ScriptingResultPhase(eval(script)))
+    }
+}
 
 @Serializable
 @SerialName("KtsResult")
 @RefWithSerialName
 data class ScriptingResultPhase(
-    @Description("脚本的运行结果")
+    @Description("脚本的运行结果，包括输出和返回值")
     val result: String,
 ) : ThoughtPhase
 
@@ -88,4 +90,5 @@ ${schemaOf<T>()}
 以上为一个json schema。你的输出必须符合这个schema。
 输入的内容是一段思考历史，包含若干个phase，你应当基于思考历史继续思考，只需要输出一个phase。
 注意，你应当合理处理转义符号，使得你的输出符合JSON规范。同时，你的输出应当以{开始，以}结束。
+禁止使用markdown格式。
 """.trimIndent()

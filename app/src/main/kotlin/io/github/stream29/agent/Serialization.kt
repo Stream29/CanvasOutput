@@ -1,4 +1,4 @@
-package io.github.stream29.segmentedmodel.app
+package io.github.stream29.agent
 
 import io.github.stream29.jsonschemagenerator.SchemaGenerator
 import io.github.stream29.jsonschemagenerator.schemaOf
