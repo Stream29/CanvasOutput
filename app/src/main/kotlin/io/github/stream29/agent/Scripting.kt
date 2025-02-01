@@ -30,7 +30,7 @@ fun eval(
         ResultWithDiagnostics.Success(it)
     }.onFailure {
         println("Script failed to execute")
-        println("Errors: ${it.reports.joinToString("\n") { it.render(withStackTrace = true) }}")
+        println("Errors: ${it.reports.filter { it.isError() }.joinToString("\n") { it.render(withStackTrace = true) }}")
     }
 }
 
