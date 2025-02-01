@@ -21,8 +21,7 @@ fun eval(
         compileConfig,
         evaluationConfig
     ).onSuccess {
-        val returnValue = it.returnValue
-        when (returnValue) {
+        when (val returnValue = it.returnValue) {
             is ResultValue.Unit -> println("return Unit")
             is ResultValue.Error -> println("throws: ${returnValue.error.stackTraceToString()}\nwrapped: ${returnValue.wrappingException?.stackTraceToString()}")
             ResultValue.NotEvaluated -> println("not evaluated")
@@ -37,13 +36,16 @@ fun eval(
 
 
 fun captureOutput(block: () -> Unit): String {
-    val out = System.out
-    val bytes = ByteArray(1024)
-    val stream = ByteArrayOutputStream()
-    System.setOut(PrintStream(stream))
-    block()
-    System.setOut(out)
-    return stream.toString()
+    val outStream = ByteArrayOutputStream()
+    val prevOut = System.out
+    System.setOut(PrintStream(outStream))
+    try {
+        block()
+    } finally {
+        System.out.flush()
+        System.setOut(prevOut)
+    }
+    return outStream.toString()
 }
 
 val compileConfig: ScriptCompilationConfiguration.Builder.() -> Unit =
@@ -58,7 +60,6 @@ val compileConfig: ScriptCompilationConfiguration.Builder.() -> Unit =
 
 val evaluationConfig: ScriptEvaluationConfiguration.Builder.() -> Unit =
     {
-        scriptsInstancesSharing(true)
         jvm {
             baseClassLoader(Thread.currentThread().contextClassLoader)
         }

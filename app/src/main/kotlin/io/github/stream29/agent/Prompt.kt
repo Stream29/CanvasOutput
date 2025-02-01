@@ -6,12 +6,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ThoughtHistory(
-    @Description("你的思考各个阶段")
-    val phases: MutableList<ThoughtPhase>,
-)
-
-@Serializable
 @SerialName("Beginning")
 @RefWithSerialName
 data class BeginningPhase(
@@ -21,6 +15,7 @@ data class BeginningPhase(
 
 @Serializable
 @SerialName("Reasoning")
+@Suppress("unused")
 @RefWithSerialName
 data class ReasoningPhase(
     @Description("从Outline中选择一个问题开始思考")
@@ -54,6 +49,7 @@ data class SummaryPhase(
 
 @Serializable
 @SerialName("Kts")
+@Suppress("unused")
 @RefWithSerialName
 @Description("当你需要执行main.kts脚本时，使用这个phase")
 data class ScriptingPhase(
