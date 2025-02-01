@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("Outline")
 @RefWithSerialName
-@Description("对接下来的编辑进行规划")
+@Description("对接下来的编辑进行规划，允许在已经进行一部分编辑以后对已有的大纲进行调整")
 data class OutlinePhase(
     @Description("你的编辑计划以及你的编辑理由")
     val pre: String,
@@ -30,7 +30,7 @@ data class OutlineColumn(
 @Serializable
 @SerialName("Reflection")
 @RefWithSerialName
-@Description("对目前的编辑进行反思，思考是否有不足或可以提升的地方。在Finish之前至少要有一次Reflection")
+@Description("在编辑的过程中，对目前的编辑进行反思，思考是否有不足或可以提升的地方。在Finish之前至少要有一次Reflection")
 data class ReflectionPhase(
     val columns: List<String>
 ) : ThoughtPhase
@@ -38,47 +38,48 @@ data class ReflectionPhase(
 @Serializable
 @SerialName("Append")
 @RefWithSerialName
-@Description("思考之后在canvas的最后面插入内容")
+@Description("在canvas的后面添加内容，如果要在中间添加，应当使用Insert")
 data class AppendPhase(
     @Description("你的编辑计划以及你的编辑理由")
     val pre: String,
-    @Description("要插入的内容")
+    @Description("要添加的内容")
     val content: String,
 ) : ThoughtPhase {
     override suspend fun joinTo(agent: Agent) {
-        super.joinTo(agent)
         with(agent.status) {
             responseCanvas = responseCanvas + content
         }
+        super.joinTo(agent)
     }
 }
 
 @Serializable
 @SerialName("Insert")
 @RefWithSerialName
-@Description("思考之后更新canvas的内容")
+@Description("向canvas中的某个位置插入内容，如果canvas为空，应当使用Append")
 data class InsertPhase(
     @Description("你的编辑计划以及你的编辑理由")
     val pre: String,
-    @Description("在canvas中这段文字第一次出现的位置之后插入内容")
+    @Description("在canvas中这段文字出现的位置之后插入内容，这里的字符串必须在canvas中出现且仅出现过一次")
     val insertAfter: String,
     @Description("要插入的内容")
     val content: String,
 ) : ThoughtPhase {
     override suspend fun joinTo(agent: Agent) {
-        super.joinTo(agent)
         with(agent.status) {
             val insertIndex = (responseCanvas.indexOf(insertAfter) + insertAfter.length)
-                .coerceIn(0..responseCanvas.length)
+            if (insertIndex - insertAfter.length == -1)
+                throw RuntimeException("$insertAfter not found in $responseCanvas")
             responseCanvas = responseCanvas.substring(0, insertIndex) + content + responseCanvas.substring(insertIndex)
         }
+        super.joinTo(agent)
     }
 }
 
 @Serializable
 @SerialName("Replace")
 @RefWithSerialName
-@Description("思考之后更新canvas的内容")
+@Description("思考之后修改canvas中已有的内容")
 data class ReplacePhase(
     @Description("你的编辑计划以及你的编辑理由")
     val pre: String,
@@ -88,10 +89,10 @@ data class ReplacePhase(
     val to: String,
 ) : ThoughtPhase {
     override suspend fun joinTo(agent: Agent) {
-        super.joinTo(agent)
         with(agent.status) {
             responseCanvas = responseCanvas.replaceFirst(from, to)
         }
+        super.joinTo(agent)
     }
 }
 
@@ -111,7 +112,6 @@ data class FinishPhase(
 inline fun <reified T> systemInstruction() = """
 ${schemaOf<T>()}
 以上为一个json schema。你的输出必须符合这个schema。
-输入的内容是一段思考历史，包含若干个phase，你应当基于思考历史继续思考，只需要输出一个phase。
 注意，你应当合理处理转义符号，使得你的输出符合JSON规范。同时，你的输出应当以{开始，以}结束。
 禁止使用markdown格式。
 """.trimIndent()

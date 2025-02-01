@@ -42,7 +42,10 @@ data class SimpleAgent(
         status.question = input
         while (true) {
             withRetry(5) {
-                val phase = respondent.chat<ThoughtPhase>(json.encodeToString(status))
+                val phase = respondent.chat<ThoughtPhase>(
+                    json.encodeToString(status) +
+                            "\n请基于以上的history，继续编辑canvas或停下来思考以生成对question的回复"
+                )
                 phase.joinTo(this)
                 println(json.encodeToString(phase))
                 println(json.encodeToString(status.responseCanvas))
