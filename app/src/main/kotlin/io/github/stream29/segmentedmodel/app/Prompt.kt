@@ -22,6 +22,8 @@ data class ThoughtPhase(
     val thinks: List<String>,
     @Description("对历史思考的总结")
     val result: String,
+    @Description("检查思考过程可能有的错误或者可以补充延伸的地方")
+    val reflection: String,
     @Description("是否需要继续思考")
     val furtherNeeded: Boolean,
 )
@@ -29,5 +31,4 @@ data class ThoughtPhase(
 inline fun <reified T> systemInstruction() = """
 ${schemaOf<T>()}
 以上为一个json schema。你的输出必须符合这个schema。
-你的输出内容必须为纯json，不可以包含任何其他内容。
 """.trimIndent()

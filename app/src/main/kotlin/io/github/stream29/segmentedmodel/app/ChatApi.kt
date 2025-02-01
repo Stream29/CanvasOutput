@@ -8,7 +8,8 @@ val apiKey = System.getenv("ALIBABA_QWEN_API_KEY") ?: throw RuntimeException("ap
 val qwenStreamChatApiProvider =
     QwenStreamingChatModel.builder()
         .apiKey(apiKey)
-        .modelName("qwen-turbo-latest")
+        .modelName("qwen-turbo")
+        .temperature(1.0f)
         .build()
         .asStreamChatApiProvider()
 
