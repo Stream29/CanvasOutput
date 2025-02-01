@@ -6,80 +6,107 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("Beginning")
-@RefWithSerialName
-data class BeginningPhase(
-    @Description("开始思考的问题")
-    val question: String,
-) : ThoughtPhase
-
-@Serializable
-@SerialName("Reasoning")
-@Suppress("unused")
-@RefWithSerialName
-data class ReasoningPhase(
-    @Description("从Outline中选择一个问题开始思考")
-    val question: String,
-    @Description("思考的过程")
-    val thoughts: String,
-    @Description("思考的结论")
-    val conclusion: String,
-    @Description("对思考过程的检查")
-    val check: String,
-) : ThoughtPhase
-
-@Serializable
-@Suppress("unused")
 @SerialName("Outline")
 @RefWithSerialName
+@Description("对接下来的编辑进行规划")
 data class OutlinePhase(
-    @Description("构思思考大纲之前的过程")
+    @Description("你的编辑计划以及你的编辑理由")
     val pre: String,
-    @Description("思考大纲")
+    @Description("逐条列出大纲")
     val outline: List<OutlineColumn>,
-) : ThoughtPhase
-
-@Serializable
-@SerialName("Summary")
-@RefWithSerialName
-data class SummaryPhase(
-    @Description("基于思考的过程，给出对初始问题的答案")
-    val summary: String,
-) : ThoughtPhase
-
-@Serializable
-@SerialName("Kts")
-@Suppress("unused")
-@RefWithSerialName
-@Description("当你需要执行main.kts脚本时，使用这个phase")
-data class ScriptingPhase(
-    @Description("一段main.kts脚本，将会被执行。不需要写main函数，脚本的最后一行会被当作返回值")
-    val script: String,
-) : ThoughtPhase {
-    override suspend fun joinTo(agent: Agent) {
-        super.joinTo(agent)
-        agent.history.add(ScriptingResultPhase(eval(script)))
-    }
-}
-
-@Serializable
-@SerialName("KtsResult")
-@RefWithSerialName
-data class ScriptingResultPhase(
-    @Description("脚本的运行结果，包括输出和返回值")
-    val result: String,
 ) : ThoughtPhase
 
 @Serializable
 @SerialName("OutlineColumn")
 @RefWithSerialName
-@Description("大纲中的一条")
+@Description("逐层深入的树状大纲结构")
 data class OutlineColumn(
-    @Description("这条大纲的内容")
+    @Description("这一节的内容")
     val content: String,
-    @Description("这条大纲的子大纲")
-    val child: List<OutlineColumn> = emptyList(),
+    @Description("可以深入讨论这一节的子条目")
+    val children: List<OutlineColumn> = emptyList(),
 )
+
+@Serializable
+@SerialName("Reflection")
+@RefWithSerialName
+@Description("对目前的编辑进行反思，思考是否有不足或可以提升的地方。在Finish之前至少要有一次Reflection")
+data class ReflectionPhase(
+    val columns: List<String>
+) : ThoughtPhase
+
+@Serializable
+@SerialName("Append")
+@RefWithSerialName
+@Description("思考之后在canvas的最后面插入内容")
+data class AppendPhase(
+    @Description("你的编辑计划以及你的编辑理由")
+    val pre: String,
+    @Description("要插入的内容")
+    val content: String,
+) : ThoughtPhase {
+    override suspend fun joinTo(agent: Agent) {
+        super.joinTo(agent)
+        with(agent.status) {
+            responseCanvas = responseCanvas + content
+        }
+    }
+}
+
+@Serializable
+@SerialName("Insert")
+@RefWithSerialName
+@Description("思考之后更新canvas的内容")
+data class InsertPhase(
+    @Description("你的编辑计划以及你的编辑理由")
+    val pre: String,
+    @Description("在canvas中这段文字第一次出现的位置之后插入内容")
+    val insertAfter: String,
+    @Description("要插入的内容")
+    val content: String,
+) : ThoughtPhase {
+    override suspend fun joinTo(agent: Agent) {
+        super.joinTo(agent)
+        with(agent.status) {
+            val insertIndex = (responseCanvas.indexOf(insertAfter) + insertAfter.length)
+                .coerceIn(0..responseCanvas.length)
+            responseCanvas = responseCanvas.substring(0, insertIndex) + content + responseCanvas.substring(insertIndex)
+        }
+    }
+}
+
+@Serializable
+@SerialName("Replace")
+@RefWithSerialName
+@Description("思考之后更新canvas的内容")
+data class ReplacePhase(
+    @Description("你的编辑计划以及你的编辑理由")
+    val pre: String,
+    @Description("要替换掉的内容，替换位置为第一次出现的位置")
+    val from: String,
+    @Description("替换后的内容")
+    val to: String,
+) : ThoughtPhase {
+    override suspend fun joinTo(agent: Agent) {
+        super.joinTo(agent)
+        with(agent.status) {
+            responseCanvas = responseCanvas.replaceFirst(from, to)
+        }
+    }
+}
+
+@Serializable
+@SerialName("Finish")
+@RefWithSerialName
+@Description("结束对canvas的编辑")
+data class FinishPhase(
+    @Description("你的编辑计划以及你的编辑理由")
+    val pre: String,
+) : ThoughtPhase {
+    override suspend fun joinTo(agent: Agent) {
+        agent.requestSuspend = true
+    }
+}
 
 inline fun <reified T> systemInstruction() = """
 ${schemaOf<T>()}

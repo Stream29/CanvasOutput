@@ -13,5 +13,5 @@ dependencies {
 }
 
 application {
-    mainClass = "io.github.stream29.app.AppKt"
+    mainClass = "io.github.stream29.agent.AppKt"
 }

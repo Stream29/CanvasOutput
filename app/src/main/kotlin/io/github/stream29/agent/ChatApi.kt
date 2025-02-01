@@ -9,6 +9,6 @@ val qwenChatApiProvider =
     QwenChatModel.builder()
         .apiKey(apiKey)
         .modelName("qwen-max")
-        .temperature(0.5f)
+        .temperature(1.0f)
         .build()
         .asChatApiProvider()

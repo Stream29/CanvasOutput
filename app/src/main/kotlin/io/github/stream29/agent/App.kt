@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 
 fun main() {
     runBlocking {
-        val simpleAgent = SimpleAgent(qwenChatApiProvider, loggingMutableListOf())
-        simpleAgent.query("计算斐波那契数列的114514项比1919810项大多少个数量级")
+        val simpleAgent = SimpleAgent(qwenChatApiProvider, Status())
+        simpleAgent.query("请写一篇文言文的策论，分析人工智能当下的进展")
     }
 }
