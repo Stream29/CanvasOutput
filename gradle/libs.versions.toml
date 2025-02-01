@@ -23,11 +23,25 @@ langchain4kt-utils = { module = "io.github.stream29:langchain4kt-utils", version
 
 json-schema-generator = { module = "io.github.stream29:json-schema-generator", version.ref = "json-schema-generator"}
 
+kotlin-scripting-common = { module = "org.jetbrains.kotlin:kotlin-scripting-common", version.ref = "kotlin" }
+kotlin-scripting-jvm = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm", version.ref = "kotlin" }
+kotlin-scripting-jvm-host = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm-host", version.ref = "kotlin" }
+kotlin-scripting-dependencies = { module = "org.jetbrains.kotlin:kotlin-scripting-dependencies", version.ref = "kotlin" }
+kotlin-main-kts = { module = "org.jetbrains.kotlin:kotlin-main-kts", version.ref = "kotlin" }
+
 [bundles]
 kotlinx-ecosystem = ["kotlinx-datetime", "kotlinx-serialization", "kotlinx-coroutines"]
 
 langchain4kt-framework = ["langchain4kt-core", "langchain4kt-streaming", "langchain4kt-utils"]
 langchain4kt-qwen = ["langchain4kt-api-langchain4j", "langchain4j-dashscope"]
+
+kotlin-scripting = [
+    "kotlin-scripting-common",
+    "kotlin-scripting-jvm",
+    "kotlin-scripting-jvm-host",
+    "kotlin-scripting-dependencies",
+    "kotlin-main-kts"
+]
 
 [plugins]
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

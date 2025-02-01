@@ -9,7 +9,7 @@ val qwenStreamChatApiProvider =
     QwenStreamingChatModel.builder()
         .apiKey(apiKey)
         .modelName("qwen-turbo")
-        .temperature(1.0f)
+        .temperature(0.5f)
         .build()
         .asStreamChatApiProvider()
 

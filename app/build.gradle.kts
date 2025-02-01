@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     implementation(project(":model"))
+    implementation(libs.bundles.kotlin.scripting)
     implementation(libs.bundles.langchain4kt.qwen)
     implementation(libs.bundles.langchain4kt.framework)
 }
