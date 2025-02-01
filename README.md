@@ -1,23 +1,13 @@
-# SegmentedModel
+# Agent
 
-This project uses [Gradle](https://gradle.org/).
-To build and run the application, use the *Gradle* tool window by clicking the Gradle icon in the right-hand toolbar,
-or run it directly from the terminal:
+背后的这套工具链差不多都是我自己搓出来的，很神奇的是，这套完整的工具链真的可以用来开发agent！
 
-* Run `./gradlew run` to build and run the application.
-* Run `./gradlew build` to only build the application.
-* Run `./gradlew check` to run all checks, including tests.
-* Run `./gradlew clean` to clean all build outputs.
+基于langchain4kt的大模型调用。
 
-Note the usage of the Gradle Wrapper (`./gradlew`).
-This is the suggested way to use Gradle in production projects.
+基于kotlinx.serialization与json-schema-generator的支持，实现了LLM的结构化输入/输出。
 
-[Learn more about the Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html).
+然后通过kotlinx.serialization支持的多态序列化，模型可以每次进行一个phase的思考。
 
-[Learn more about Gradle tasks](https://docs.gradle.org/current/userguide/command_line_interface.html#common_tasks).
+如果是模型需要调用main.kts脚本，我们也可以允许它调用。
 
-This project follows the suggested multi-module setup and consists of the `app` and `utils` subprojects.
-The shared build logic was extracted to a convention plugin located in `buildSrc`.
-
-This project uses a version catalog (see `gradle/libs.versions.toml`) to declare and version dependencies
-and both a build cache and a configuration cache (see `gradle.properties`).
+这样的话，约等于是实现了一个半双工的通讯，每次模型进行一个phase的思考，我们都可以基于它返回的这个phase进行一些操作。
