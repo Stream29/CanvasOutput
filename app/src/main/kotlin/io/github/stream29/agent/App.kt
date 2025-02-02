@@ -5,6 +5,6 @@ import kotlinx.coroutines.runBlocking
 fun main() {
     runBlocking {
         val simpleAgent = SimpleAgent(qwenChatApiProvider, Status())
-        simpleAgent.query("请写一篇文言文的策论，分析人工智能当下的进展")
+        simpleAgent.query("请介绍一下中国的MC玩家群体")
     }
 }
