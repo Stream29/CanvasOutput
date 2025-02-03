@@ -49,14 +49,7 @@ data class SimpleAgent(
                 phase.joinTo(this)
                 println(json.encodeToString(phase))
                 println(status.responseCanvas)
-                if (requestSuspend) {
-                    println("continue? Y/N")
-                    if (readln() == "N") {
-                        requestSuspend = false
-                    } else {
-                        return status.responseCanvas
-                    }
-                }
+                if (requestSuspend) return status.responseCanvas
             }
         }
     }

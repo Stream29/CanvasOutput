@@ -28,6 +28,15 @@ data class OutlineColumn(
 )
 
 @Serializable
+@SerialName("Reasoning")
+@RefWithSerialName
+@Description("在编辑的过程中，对目前的思路进行整理和推理，以得到更优质的输出")
+data class ReasoningPhase(
+    @Description("可能很长的推理步骤，越长越仔细越好")
+    val steps: List<String>
+) : ThoughtPhase
+
+@Serializable
 @SerialName("Reflection")
 @RefWithSerialName
 @Description("在编辑的过程中，对目前的编辑进行反思，思考是否有不足或可以提升的地方。在Finish之前至少要有一次Reflection")
