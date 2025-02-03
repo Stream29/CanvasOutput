@@ -15,6 +15,7 @@ kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 
 langchain4j-dashscope = { module = "dev.langchain4j:langchain4j-dashscope", version.ref = "langchain4j" }
+langchain4j-openai = { module = "dev.langchain4j:langchain4j-open-ai", version.ref = "langchain4j" }
 langchain4kt-api-langchain4j = { module = "io.github.stream29:langchain4kt-api-langchain4j", version.ref = "langchain4kt" }
 
 langchain4kt-core = { module = "io.github.stream29:langchain4kt-core", version.ref = "langchain4kt" }
@@ -33,7 +34,7 @@ kotlin-main-kts = { module = "org.jetbrains.kotlin:kotlin-main-kts", version.ref
 kotlinx-ecosystem = ["kotlinx-datetime", "kotlinx-serialization", "kotlinx-coroutines"]
 
 langchain4kt-framework = ["langchain4kt-core", "langchain4kt-streaming", "langchain4kt-utils"]
-langchain4kt-qwen = ["langchain4kt-api-langchain4j", "langchain4j-dashscope"]
+langchain4kt-api = ["langchain4kt-api-langchain4j", "langchain4j-dashscope", "langchain4j-openai"]
 
 kotlin-scripting = [
     "kotlin-scripting-common",
