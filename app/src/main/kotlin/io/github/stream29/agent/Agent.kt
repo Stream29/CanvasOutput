@@ -10,6 +10,7 @@ import kotlinx.serialization.encodeToString
 interface Agent {
     val status: Status
     var requestSuspend: Boolean
+    val traceId: String
     suspend fun query(input: String): String
 }
 
@@ -28,12 +29,16 @@ data class Status(
 sealed interface ThoughtPhase {
     suspend fun joinTo(agent: Agent) {
         agent.status.history.add(this)
+        println("traceId: ${agent.traceId}")
+        println(json.encodeToString(this))
+        println(agent.status.responseCanvas)
     }
 }
 
 data class SimpleAgent(
     val chatApiProvider: ChatApiProvider<*>,
-    override val status: Status
+    override val status: Status,
+    override val traceId: String = "main"
 ) : Agent {
     @Volatile
     override var requestSuspend = false
@@ -44,12 +49,13 @@ data class SimpleAgent(
             withRetry(5) {
                 val phase = respondent.chat<ThoughtPhase>(
                     json.encodeToString(status) +
-                            "\n请基于以上的history，继续编辑canvas或停下来思考以生成对question的回复"
+                            "\n请基于以上的history，继续编辑responseCanvas或停下来思考以生成对question的回复"
                 )
+                if (phase is SubproblemSolutionPhase)
+                    return@withRetry
                 phase.joinTo(this)
-                println(json.encodeToString(phase))
-                println(status.responseCanvas)
-                if (requestSuspend) return status.responseCanvas
+                if (requestSuspend)
+                    return status.responseCanvas
             }
         }
     }

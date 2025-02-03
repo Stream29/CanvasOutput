@@ -1,9 +1,13 @@
+@file:Suppress("unused")
+
 package io.github.stream29.agent
 
 import io.github.stream29.jsonschemagenerator.Description
 import io.github.stream29.jsonschemagenerator.RefWithSerialName
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 
 @Serializable
 @SerialName("Outline")
@@ -25,6 +29,51 @@ data class OutlineColumn(
     val content: String,
     @Description("这一节的子条目")
     val children: List<OutlineColumn> = emptyList(),
+)
+
+@Serializable
+@SerialName("Subproblem")
+@RefWithSerialName
+@Description("将原本需要解决的问题分解为多个可以独立解决的子问题，可以加快推理速度")
+data class SubproblemPhase(
+    @Description("你的拆解理由以及拆解计划")
+    val pre: String,
+    @Description("逐条列出子问题，子问题应当完整独立，不依赖上下文语境")
+    val subproblems: List<String>,
+) : ThoughtPhase {
+    override suspend fun joinTo(agent: Agent) = coroutineScope {
+        super.joinTo(agent)
+        val oldHistory = agent.status.history.toMutableList()
+        val solutionColumns = subproblems.map {
+            it to SimpleAgent(
+                qwenChatApiProvider,
+                Status(history = oldHistory),
+                "${agent.traceId}-$it"
+            ).query(it)
+        }.map { SubproblemSolutionColumn(it.first, it.second) }
+        val solutionPhase = SubproblemSolutionPhase(solutionColumns)
+        println(json.encodeToString(solutionPhase))
+        agent.status.history.add(solutionPhase)
+        Unit
+    }
+}
+
+@Serializable
+@SerialName("SubproblemSolution")
+@RefWithSerialName
+@Description("子问题的解决结果")
+data class SubproblemSolutionPhase(
+    @Description("子问题及其结果")
+    val subproblems: List<SubproblemSolutionColumn>,
+) : ThoughtPhase
+
+@Serializable
+@Description("一个子问题的解决结果")
+data class SubproblemSolutionColumn(
+    @Description("子问题")
+    val subproblem: String,
+    @Description("子问题的解决结果")
+    val result: String,
 )
 
 @Serializable

@@ -1,7 +1,7 @@
 package io.github.stream29.agent
 
 suspend inline fun withRetry(retryCount: Int, block: suspend () -> Unit) {
-    var count = 1
+    var count = 0
     while (count < retryCount) {
         try {
             block()
@@ -11,5 +11,4 @@ suspend inline fun withRetry(retryCount: Int, block: suspend () -> Unit) {
             count++
         }
     }
-    block()
 }
