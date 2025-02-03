@@ -9,7 +9,7 @@ val qwenApiKey = System.getenv("ALIBABA_QWEN_API_KEY") ?: throw RuntimeException
 val qwenChatApiProvider =
     QwenChatModel.builder()
         .apiKey(qwenApiKey)
-        .modelName("qwen-max-latest")
+        .modelName("qwen-plus-latest")
         .temperature(1.0f)
         .build()
         .asChatApiProvider()
@@ -18,8 +18,8 @@ val deepSeekApiKey = System.getenv("DEEPSEEK_API_KEY") ?: throw RuntimeException
 
 val deepSeekChatApiProvider =
     OpenAiChatModel.builder()
-        .baseUrl("https://api.deepseek.com/v1")
-        .apiKey(deepSeekApiKey)
-        .modelName("deepseek-chat")
+        .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
+        .apiKey(qwenApiKey)
+        .modelName("deepseek-v3")
         .build()
         .asChatApiProvider()
