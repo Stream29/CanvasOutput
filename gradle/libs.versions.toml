@@ -17,12 +17,13 @@ kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",
 langchain4j-dashscope = { module = "dev.langchain4j:langchain4j-dashscope", version.ref = "langchain4j" }
 langchain4j-openai = { module = "dev.langchain4j:langchain4j-open-ai", version.ref = "langchain4j" }
 langchain4kt-api-langchain4j = { module = "io.github.stream29:langchain4kt-api-langchain4j", version.ref = "langchain4kt" }
+langchain4kt-api-google-gemini = { module = "io.github.stream29:langchain4kt-api-google-gemini", version.ref = "langchain4kt" }
 
 langchain4kt-core = { module = "io.github.stream29:langchain4kt-core", version.ref = "langchain4kt" }
 langchain4kt-streaming = { module = "io.github.stream29:langchain4kt-streaming", version.ref = "langchain4kt" }
 langchain4kt-utils = { module = "io.github.stream29:langchain4kt-utils", version.ref = "langchain4kt" }
 
-json-schema-generator = { module = "io.github.stream29:json-schema-generator", version.ref = "json-schema-generator"}
+json-schema-generator = { module = "io.github.stream29:json-schema-generator", version.ref = "json-schema-generator" }
 
 kotlin-scripting-common = { module = "org.jetbrains.kotlin:kotlin-scripting-common", version.ref = "kotlin" }
 kotlin-scripting-jvm = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm", version.ref = "kotlin" }
@@ -34,7 +35,12 @@ kotlin-main-kts = { module = "org.jetbrains.kotlin:kotlin-main-kts", version.ref
 kotlinx-ecosystem = ["kotlinx-datetime", "kotlinx-serialization", "kotlinx-coroutines"]
 
 langchain4kt-framework = ["langchain4kt-core", "langchain4kt-streaming", "langchain4kt-utils"]
-langchain4kt-api = ["langchain4kt-api-langchain4j", "langchain4j-dashscope", "langchain4j-openai"]
+langchain4kt-api = [
+    "langchain4kt-api-langchain4j",
+    "langchain4j-dashscope",
+    "langchain4j-openai",
+    "langchain4kt-api-google-gemini"
+]
 
 kotlin-scripting = [
     "kotlin-scripting-common",
