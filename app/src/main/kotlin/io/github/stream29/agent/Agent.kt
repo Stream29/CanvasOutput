@@ -21,7 +21,7 @@ data class Status(
     val history: MutableList<ThoughtPhase> = mutableListOf(),
     @Description("你需要回复的问题")
     var question: String = "",
-    @Description("你的回复，可以一遍思考一边编辑")
+    @Description("你的回复，可以一遍思考一边编辑。请将答案填写在这张答题卡中")
     var responseCanvas: String = ""
 )
 

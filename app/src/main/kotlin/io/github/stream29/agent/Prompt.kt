@@ -88,7 +88,7 @@ data class ReasoningPhase(
 @Serializable
 @SerialName("Reflection")
 @RefWithSerialName
-@Description("在编辑的过程中，对目前的编辑进行反思，思考是否有不足或可以提升的地方。在Finish之前至少要有一次Reflection")
+@Description("在编辑的过程中，对目前的编辑进行反思，思考是否有不足或可以提升的地方，确保responseCanvas的内容已经可以作为问题的回复。在Finish之前至少要有一次Reflection")
 data class ReflectionPhase(
     val columns: List<String>
 ) : ThoughtPhase
@@ -157,12 +157,13 @@ data class ReplacePhase(
 @Serializable
 @SerialName("Finish")
 @RefWithSerialName
-@Description("结束对canvas的编辑")
+@Description("结束对canvas的编辑，在结束编辑前，你应当通过Reflection对你的编辑进行检查")
 data class FinishPhase(
     @Description("你的编辑计划以及你的编辑理由")
     val pre: String,
 ) : ThoughtPhase {
     override suspend fun joinTo(agent: Agent) {
+        super.joinTo(agent)
         agent.requestSuspend = true
     }
 }
@@ -170,6 +171,6 @@ data class FinishPhase(
 inline fun <reified T> systemInstruction() = """
 ${schemaOf<T>()}
 以上为一个json schema。你的输出必须符合这个schema。
-注意，你应当合理处理转义符号，使得你的输出符合JSON规范。同时，你的输出应当以{开始，以}结束。
+注意，你应当合理处理转义符号，使得你的输出符合JSON规范。
 禁止使用markdown格式。
 """.trimIndent()
