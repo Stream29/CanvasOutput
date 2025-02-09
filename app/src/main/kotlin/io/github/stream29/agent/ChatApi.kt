@@ -23,7 +23,7 @@ val deepSeekChatApiProvider =
         .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
         .apiKey(qwenApiKey)
         .modelName("deepseek-v3")
-        .timeout(Duration.ofSeconds(60))
+        .timeout(Duration.ofSeconds(600))
         .build()
         .asChatApiProvider()
 
