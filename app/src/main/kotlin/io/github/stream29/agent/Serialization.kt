@@ -14,7 +14,7 @@ val schemaGenerator = SchemaGenerator()
 
 inline fun <reified T> schemaOf() = json.encodeToString(schemaGenerator.schemaOf<T>())
 
-inline fun <reified T> fromJson(text: String) = json.decodeFromString<T>(text)
+inline fun <reified T> fromJson(text: String) = json.decodeFromString<T>(text.normalizedJsonOutput())
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 suspend inline fun <reified T> Respondent.chat(message: String) =
@@ -22,3 +22,10 @@ suspend inline fun <reified T> Respondent.chat(message: String) =
 
 suspend inline fun <reified T, reified R> Respondent.chat(input: T) =
     chat<R>(json.encodeToString(input))
+
+fun String.normalizedJsonOutput() =
+    when {
+        startsWith("```") -> substringAfter("\n").substringBeforeLast("```")
+        startsWith("{\n{") -> substringAfter("\n")
+        else -> this
+    }
