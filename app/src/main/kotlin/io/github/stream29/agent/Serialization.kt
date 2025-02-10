@@ -14,14 +14,7 @@ val schemaGenerator = SchemaGenerator()
 
 inline fun <reified T> schemaOf() = json.encodeToString(schemaGenerator.schemaOf<T>())
 
-inline fun <reified T> fromJson(text: String) = json.decodeFromString<T>(text.normalizedJsonOutput())
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-suspend inline fun <reified T> Respondent.chat(message: String) =
-    fromJson<T>(chat(message))
-
-suspend inline fun <reified T, reified R> Respondent.chat(input: T) =
-    chat<R>(json.encodeToString(input))
+inline fun <reified T> fromJson(text: String) = json.decodeFromString<T>(text)
 
 fun String.normalizedJsonOutput() =
     when {

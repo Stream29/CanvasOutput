@@ -9,6 +9,52 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 
+/*
+ * AllThoughtPhases
+ * └── DeepenReasoningPhases
+ *     ├──── SubproblemPhase
+ *     ├──── SubproblemSolutionPhase
+ *     └── BasicReasoningPhases
+ *         ├──── OutlinePhase
+ *         ├──── ReasoningPhase
+ *         ├──── ReflectionPhase
+ *         └── CanvasEditingPhases
+ *             ├──── AppendPhase
+ *             ├──── InsertPhase
+ *             ├──── ReplacePhase
+ *             └── LifecyclePhases
+ *                 └──── FinishPhase
+ */
+
+interface ThoughtPhase<T : ThoughtPhase<T>> {
+    suspend fun joinTo(queryContext: QueryContext<T, *>)
+}
+
+@Serializable
+sealed interface AllThoughtPhases : ThoughtPhase<AllThoughtPhases> {
+    override suspend fun joinTo(queryContext: QueryContext<AllThoughtPhases, *>) {
+        queryContext.status.history.add(this)
+        println("traceId: ${queryContext.traceId}")
+        println(json.encodeToString(this))
+        println(queryContext.status.responseCanvas)
+    }
+}
+
+@Serializable
+sealed interface LifecyclePhases : CanvasEditingPhases
+
+@Serializable
+sealed interface CanvasEditingPhases : BasicReasoningPhases
+
+@Serializable
+sealed interface BasicReasoningPhases : OutputDeepenReasoningPhases
+
+@Serializable
+sealed interface OutputDeepenReasoningPhases : DeepenReasoningPhases
+
+@Serializable
+sealed interface DeepenReasoningPhases : AllThoughtPhases
+
 @Serializable
 @SerialName("Outline")
 @RefWithSerialName
@@ -18,7 +64,7 @@ data class OutlinePhase(
     val pre: String,
     @Description("逐条列出大纲")
     val outline: List<OutlineColumn>,
-) : ThoughtPhase
+) : BasicReasoningPhases
 
 @Serializable
 @SerialName("OutlineColumn")
@@ -40,20 +86,23 @@ data class SubproblemPhase(
     val pre: String,
     @Description("逐条列出子问题，子问题应当完整独立，不依赖上下文语境")
     val subproblems: List<String>,
-) : ThoughtPhase {
-    override suspend fun joinTo(agent: Agent) = coroutineScope {
-        super.joinTo(agent)
-        val oldHistory = agent.status.history.toMutableList()
+) : OutputDeepenReasoningPhases {
+    override suspend fun joinTo(queryContext: QueryContext<AllThoughtPhases, *>) = coroutineScope {
+        super.joinTo(queryContext)
+        val oldHistory = queryContext.status.history.toMutableList()
         val solutionColumns = subproblems.map {
-            it to SimpleAgent(
-                qwenChatApiProvider,
-                Status(history = oldHistory),
-                "${agent.traceId}-$it"
-            ).query(it)
+            it to buildQuery<AllThoughtPhases, OutputDeepenReasoningPhases> {
+                chatApiProvider = qwenChatApiProvider
+                systemInstruction = defaultSystemInstruction
+                prompt = defaultPrompt
+                question = it
+                history = oldHistory
+                parentTraceId = queryContext.traceId
+            }.query()
         }.map { SubproblemSolutionColumn(it.first, it.second) }
         val solutionPhase = SubproblemSolutionPhase(solutionColumns)
         println(json.encodeToString(solutionPhase))
-        agent.status.history.add(solutionPhase)
+        queryContext.status.history.add(solutionPhase)
         Unit
     }
 }
@@ -65,7 +114,7 @@ data class SubproblemPhase(
 data class SubproblemSolutionPhase(
     @Description("子问题及其结果")
     val subproblems: List<SubproblemSolutionColumn>,
-) : ThoughtPhase
+) : DeepenReasoningPhases
 
 @Serializable
 @Description("一个子问题的解决结果")
@@ -83,7 +132,7 @@ data class SubproblemSolutionColumn(
 data class ReasoningPhase(
     @Description("可能很长的推理步骤，越长越仔细越好")
     val steps: List<String>
-) : ThoughtPhase
+) : BasicReasoningPhases
 
 @Serializable
 @SerialName("Reflection")
@@ -91,7 +140,7 @@ data class ReasoningPhase(
 @Description("在编辑的过程中，对目前的编辑进行反思，思考是否有不足或可以提升的地方，确保responseCanvas的内容已经可以作为问题的回复。在Finish之前至少要有一次Reflection")
 data class ReflectionPhase(
     val columns: List<String>
-) : ThoughtPhase
+) : BasicReasoningPhases
 
 @Serializable
 @SerialName("Append")
@@ -102,35 +151,35 @@ data class AppendPhase(
     val pre: String,
     @Description("要添加的内容")
     val content: String,
-) : ThoughtPhase {
-    override suspend fun joinTo(agent: Agent) {
-        with(agent.status) {
+) : CanvasEditingPhases {
+    override suspend fun joinTo(queryContext: QueryContext<AllThoughtPhases, *>) {
+        with(queryContext.status) {
             responseCanvas = responseCanvas + content
         }
-        super.joinTo(agent)
+        super.joinTo(queryContext)
     }
 }
 
 @Serializable
 @SerialName("Insert")
 @RefWithSerialName
-@Description("向canvas中的某个位置插入内容，如果canvas为空，应当使用Append")
+@Description("向responseCanvas中的某个位置插入内容，如果responseCanvas为空，应当使用Append")
 data class InsertPhase(
     @Description("你的编辑计划以及你的编辑理由")
     val pre: String,
-    @Description("在canvas中这段文字出现的位置之后插入内容，这里的字符串必须在canvas中出现且仅出现过一次")
+    @Description("在responseCanvas中这段文字出现的位置之后插入内容，这里的字符串必须在responseCanvas中出现且仅出现过一次")
     val insertAfter: String,
     @Description("要插入的内容")
     val content: String,
-) : ThoughtPhase {
-    override suspend fun joinTo(agent: Agent) {
-        with(agent.status) {
+) : CanvasEditingPhases {
+    override suspend fun joinTo(queryContext: QueryContext<AllThoughtPhases, *>) {
+        with(queryContext.status) {
             val insertIndex = (responseCanvas.indexOf(insertAfter) + insertAfter.length)
             if (insertIndex - insertAfter.length == -1)
                 throw RuntimeException("$insertAfter not found in $responseCanvas")
             responseCanvas = responseCanvas.substring(0, insertIndex) + content + responseCanvas.substring(insertIndex)
         }
-        super.joinTo(agent)
+        super.joinTo(queryContext)
     }
 }
 
@@ -145,12 +194,12 @@ data class ReplacePhase(
     val from: String,
     @Description("替换后的内容")
     val to: String,
-) : ThoughtPhase {
-    override suspend fun joinTo(agent: Agent) {
-        with(agent.status) {
+) : CanvasEditingPhases {
+    override suspend fun joinTo(queryContext: QueryContext<AllThoughtPhases, *>) {
+        with(queryContext.status) {
             responseCanvas = responseCanvas.replaceFirst(from, to)
         }
-        super.joinTo(agent)
+        super.joinTo(queryContext)
     }
 }
 
@@ -161,16 +210,10 @@ data class ReplacePhase(
 data class FinishPhase(
     @Description("你的编辑计划以及你的编辑理由")
     val pre: String,
-) : ThoughtPhase {
-    override suspend fun joinTo(agent: Agent) {
-        super.joinTo(agent)
-        agent.requestSuspend = true
+) : LifecyclePhases {
+    override suspend fun joinTo(queryContext: QueryContext<AllThoughtPhases, *>) {
+        super.joinTo(queryContext)
+        queryContext.finished = true
     }
 }
 
-inline fun <reified T> systemInstruction() = """
-${schemaOf<T>()}
-以上为一个json schema。你的输出必须符合这个schema。
-注意，你应当合理处理转义符号，使得你的输出符合JSON规范。
-禁止使用markdown格式。
-""".trimIndent()
