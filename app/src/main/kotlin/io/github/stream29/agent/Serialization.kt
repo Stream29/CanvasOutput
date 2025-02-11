@@ -18,6 +18,8 @@ inline fun <reified T> fromJson(text: String) = json.decodeFromString<T>(text)
 
 fun String.normalizedJsonOutput() =
     when {
+        startsWith("```json") -> substringAfter("```json").substringBeforeLast("```")
+        startsWith("```JSON") -> substringAfter("```JSON").substringBeforeLast("```")
         startsWith("```") -> substringAfter("\n").substringBeforeLast("```")
         startsWith("{\n{") -> substringAfter("\n")
         else -> this
