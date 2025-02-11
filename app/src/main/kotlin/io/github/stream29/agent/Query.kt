@@ -62,7 +62,7 @@ class QueryBuilder<HistoryPhases : ThoughtPhase<*>, ResponsePhases : HistoryPhas
 
 inline val <HistoryPhases : ThoughtPhase<*>, ResponsePhases : HistoryPhases>
         QueryBuilder<HistoryPhases, ResponsePhases>.defaultPrompt: QueryContext<HistoryPhases, ResponsePhases>.() -> String
-    get() = { "$statusJson\n请基于以上的history，继续编辑responseCanvas或停下来思考以生成对question的回复" }
+    get() = { "$statusJson\n请基于以上的history，继续编辑responseCanvas或停下来思考以生成对question的回复。你必须忠实地执行question的要求，并且检查执行是否无误" }
 
 inline val <reified ResponsePhases> QueryBuilder<*, ResponsePhases>.defaultSystemInstruction
     get() = """

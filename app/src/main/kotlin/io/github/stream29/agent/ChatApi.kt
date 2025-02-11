@@ -1,7 +1,6 @@
 package io.github.stream29.agent
 
 import dev.langchain4j.model.dashscope.QwenChatModel
-import dev.shreyaspatil.ai.client.generativeai.common.client.GenerationConfig
 import io.github.stream29.langchain4kt.api.googlegemini.GeminiChatApiProvider
 import io.github.stream29.langchain4kt.api.langchain4j.asChatApiProvider
 
@@ -10,7 +9,7 @@ val qwenApiKey = System.getenv("ALIBABA_QWEN_API_KEY") ?: throw RuntimeException
 val qwenChatApiProvider =
     QwenChatModel.builder()
         .apiKey(qwenApiKey)
-        .modelName("qwen-max-latest")
+        .modelName("qwen-turbo-latest")
         .temperature(1.0f)
         .build()
         .asChatApiProvider()

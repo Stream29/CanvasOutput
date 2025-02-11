@@ -34,7 +34,7 @@ interface ThoughtPhase<T : ThoughtPhase<T>> {
 sealed interface AllThoughtPhases : ThoughtPhase<AllThoughtPhases> {
     override suspend fun joinTo(queryContext: QueryContext<AllThoughtPhases, *>) {
         queryContext.status.history.add(this)
-        println("traceId: ${queryContext.traceId}")
+//        println("traceId: ${queryContext.traceId}")
         println(json.encodeToString(this))
         println(queryContext.status.responseCanvas)
     }
